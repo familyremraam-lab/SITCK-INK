@@ -2628,8 +2628,8 @@ function goPlay(){ shopOpen=false; admOpen=false; for(const id of ['menu','pause
   if(TOUCH){ running=true; clock.getDelta(); } else tryLock(); }
 /* Chrome sometimes refuses the mouse lock (e.g. right after ESC) -> show CLICK TO PLAY instead of getting stuck */
 function tryLock(){ $('clickGo').classList.add('hide'); try{ const p=controls.domElement.requestPointerLock(); if(p&&p.catch) p.catch(()=>needClick()); }catch(_){ needClick(); }
-  setTimeout(()=>{ if(!running&&started&&!onMenu&&!PL.dead&&$('pause').classList.contains('hide')&&$('over').classList.contains('hide')) needClick(); },600); }
-function needClick(){ if(running||onMenu||PL.dead) return; $('clickGo').classList.remove('hide'); }
+  setTimeout(()=>{ if(!controls.isLocked) needClick(); },600); }
+function needClick(){ if(TOUCH||onMenu||!started||controls.isLocked||(PL.dead&&!NET.down)||bagOpen||shopOpen||perkOpen) return; if(!$('pause').classList.contains('hide')||!$('over').classList.contains('hide')) return; $('clickGo').classList.remove('hide'); }   /* co-op keeps running=true, so this used to bail out and leave the player stuck with no mouse look */
 $('goBtn').onclick=()=>{ ac(); tryLock(); };
 document.addEventListener('pointerlockerror',()=>needClick());
 $('play').onclick=()=>{ ac(); applySet(); onMenu=false; clearDemo(); fp.visible=true; started=true; resetGame(); goPlay(); };
@@ -2637,7 +2637,7 @@ $('resume').onclick=()=>goPlay();
 $('restart1').onclick=$('restart2').onclick=()=>{ if(NET.guest){ feed('waiting for the host to restart...'); return; } if(NET.host){ netStart(); return; } $('over').classList.add('hide'); resetGame(); goPlay(); };
 $('home1').onclick=$('home2').onclick=()=>{ const was=NET.on; if(was) netLeave(); NET.down=false; PL.dead=false; fp.visible=true; showMenu(); pauseLabel(); if(was) feed('you left the online game'); };
 controls.addEventListener('lock',()=>{ running=true; for(const id of ['menu','pause','over','clickGo']) $(id).classList.add('hide'); document.body.classList.add('ingame'); clock.getDelta(); });
-controls.addEventListener('unlock',()=>{ pauseLabel(); $('admBtn').style.display=$('admBr').style.display=MODE==='free'?'':'none'; if(!NET.on&&!bagOpen) running=false;                /* online: the fight goes on while your menu is open. The inventory never pauses the game */ MOUSE=false; if(started&&(!PL.dead||NET.down)&&!onMenu&&!shopOpen) $('pause').classList.remove('hide'); });   /* DOWN in co-op is not game over: Esc still opens the pause menu */
+controls.addEventListener('unlock',()=>{ pauseLabel(); $('admBtn').style.display=$('admBr').style.display=MODE==='free'?'':'none'; if(!NET.on&&!bagOpen) running=false; if(!bagOpen){ for(const k in KEYS) KEYS[k]=false; JOY.on=false; }                /* online: the fight goes on while your menu is open. The inventory never pauses the game */ MOUSE=false; if(started&&(!PL.dead||NET.down)&&!onMenu&&!shopOpen) $('pause').classList.remove('hide'); });   /* DOWN in co-op is not game over: Esc still opens the pause menu */
 function perkList(){ const own=Object.keys(PK.lv); return own.map(n=>'<b>'+n+'</b> LV '+PK.lv[n]).join(' · '); }
 function pauseLabel(){ { const e=$('pausePerks'), t=MODE==='perks'?perkList():''; e.style.display=MODE==='perks'?'block':'none'; e.innerHTML=t?'your perks: '+t:'no perks yet - clear a wave to pick one'; } $('home1').textContent=$('home2').textContent=NET.on?'LEAVE GAME':'MAIN MENU'; $('restart1').style.display=NET.guest?'none':''; }
 function pauseGame(){ pauseLabel(); $('admBtn').style.display=$('admBr').style.display=MODE==='free'?'':'none'; if(!NET.on) running=false; MOUSE=false; for(const k in KEYS) KEYS[k]=false; JOY.on=false; $('pause').classList.remove('hide'); document.body.classList.remove('ingame'); }
@@ -2654,7 +2654,7 @@ function demoStep(dt){ const a=clock.elapsedTime*.06, C=MAPINFO[CUR_MAP].cam; ca
     if(d.wait<=0&&Math.hypot(d.tx-p.x,d.tz-p.z)<.5){ [d.tx,d.tz]=freeSpot(); d.wait=rand(1,3); if(Math.random()<.35) d.swing=.6; }
     const ex=d.tx-p.x, ez=d.tz-p.z, ed=Math.hypot(ex,ez); let moved=0; if(ed>.3&&d.wait<=0){ const ox=p.x,oz=p.z; moveBody(p,ex/ed*2.4*dt,ez/ed*2.4*dt,.32); p.y=lerp(p.y,groundAt(p.x,p.z,p.y,.3),.5); moved=Math.hypot(p.x-ox,p.z-oz); d.yaw=Math.atan2(ex,ez); if(moved<.001){ d.tx=p.x; d.tz=p.z; } }
     d.walk+=moved*3.4; d.mv=moved/Math.max(dt,1e-3); let dy=d.yaw-d.R.root.rotation.y; while(dy>Math.PI) dy-=TAU; while(dy<-Math.PI) dy+=TAU; d.R.root.rotation.y+=dy*Math.min(1,dt*8); animBot(d,dt,d.swing>0); } }
-addEventListener('keydown',e=>{ KEYS[e.code]=true; if(admOpen&&e.code==='KeyP'){ closeAdmin(); return; } if(perkOpen){ const n=['Digit1','Digit2','Digit3'].indexOf(e.code); if(n>=0) pickPerk(n); return; } if(bagOpen){ if(e.code==='KeyI'||e.code==='Tab'||e.code==='Escape'){ e.preventDefault(); closeBag(); } return; } if(e.code==='Tab'&&MODE==='heist'&&started) e.preventDefault(); if(shopOpen&&!admOpen&&e.code==='KeyB'){ closeShop(); return; } if(!running) return;
+addEventListener('keydown',e=>{ KEYS[e.code]=true; if(admOpen&&e.code==='KeyP'){ closeAdmin(); return; } if(perkOpen){ const n=['Digit1','Digit2','Digit3'].indexOf(e.code); if(n>=0) pickPerk(n); return; } if(bagOpen){ if(e.code==='KeyI'||e.code==='Tab'||e.code==='Escape'){ e.preventDefault(); closeBag(); } return; } if(e.code==='Tab'&&MODE==='heist'&&started) e.preventDefault(); if(shopOpen&&!admOpen&&e.code==='KeyB'){ closeShop(); return; } if(!running) return; if(!TOUCH&&!$('pause').classList.contains('hide')){ KEYS[e.code]=false; return; }   /* co-op: the world runs behind the pause menu, but you stand still */
   if((e.code==='KeyI'||e.code==='Tab')&&MODE==='heist'){ openBag(); return; } if(MODE==='heist'&&/^Digit[1-9]$/.test(e.code)){ invSlot(+e.code.slice(5)-1); return; } if(MODE==='heist'&&e.code==='KeyX'&&!e.repeat&&!PL.inCar){ if(!invDrop(curW().k)) feed('you cannot drop your fists'); return; }
   if(e.code==='KeyQ'){ if(MODE==='heist') invSwap(); else setHand(PL.hand==='melee'?'gun':'melee'); }
   if(e.code==='Digit1') setHand('melee'); if(e.code==='Digit2') setHand('gun'); if(e.code==='Digit3') tryNade();
@@ -2662,7 +2662,7 @@ addEventListener('keydown',e=>{ KEYS[e.code]=true; if(admOpen&&e.code==='KeyP'){
   if(e.code==='KeyR') reload(); if(e.code==='KeyE') tryPickup(); if(e.code==='KeyG') tryNade(); if(e.code==='KeyF') tryKick(); if(e.code==='KeyP') openAdmin(); if(e.code==='KeyT'&&MODE==='free'){ const nb=spawnBot(pickKind()); feed('spawned a '+(nb.name||nb.kind).toUpperCase()); }
   if(e.code==='Space'&&PL.ground){ PL.vy=ADMON('jump')?15:6.5; PL.ground=false; } });
 addEventListener('keyup',e=>KEYS[e.code]=false);
-addEventListener('mousedown',e=>{ if(!running) return; if(e.button===0){ MOUSE=true; attack(); } if(e.button===2) PL.aim=true; });
+addEventListener('mousedown',e=>{ if(!running) return; if(!TOUCH&&!controls.isLocked) return; if(e.button===0){ MOUSE=true; attack(); } if(e.button===2) PL.aim=true; });
 addEventListener('mouseup',e=>{ if(e.button===0) MOUSE=false; if(e.button===2) PL.aim=false; });
 addEventListener('contextmenu',e=>e.preventDefault());
 addEventListener('wheel',()=>{ if(running) setHand(PL.hand==='melee'?'gun':'melee'); });
