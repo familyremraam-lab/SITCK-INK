@@ -46,6 +46,7 @@ canvas#c{display:block;width:100%;height:100%}
 .stats{font-size:30px;margin:8px 0 14px;line-height:1.3}
 .start{position:fixed;inset:0;z-index:20;display:flex;align-items:center;padding:0 7vw;background:linear-gradient(90deg,rgba(243,239,228,.93) 0,rgba(243,239,228,.78) 38%,rgba(243,239,228,0) 70%)}
 .start.hide{display:none}
+.start{overflow-y:auto;align-items:flex-start}.st-left{margin:auto 0;padding:8px 0}   /* the menu can always be scrolled, and is never cut off at the top on a short screen */
 .st-left{display:flex;flex-direction:column;align-items:flex-start;max-width:560px}
 .st-logo{position:relative;font:clamp(80px,13vw,170px) 'Permanent Marker';line-height:.82;animation:wob 2.4s ease-in-out infinite;transform-origin:30% 60%}
 .st-logo .w1{display:block;color:#111}.st-logo .w2{display:block;color:#e11d2a;margin-left:.5em;text-shadow:5px 5px 0 #111}
@@ -62,7 +63,7 @@ canvas#c{display:block;width:100%;height:100%}
 @media (max-width:760px){ .start{padding:0 5vw;background:rgba(243,239,228,.85)} .st-note{display:none} }#touch{display:none}body.touch.ingame #touch{display:block}
 body.touch,body.touch canvas{touch-action:none}
 /* short screens (a phone held sideways): the menu was cut off at the top and bottom. Smaller logo and buttons, and it can scroll. */
-@media (max-height:520px){ .start{overflow-y:auto;align-items:flex-start!important;padding-top:6px;padding-bottom:10px} .st-logo{font-size:52px!important;line-height:.82!important;animation:none!important} .st-logo .scribble{display:none} .st-sub{font-size:15px!important;margin:2px 0 4px 4px!important} .st-btns{gap:2px!important} .st-btns .btn{font-size:16px!important;padding:1px 14px!important;min-width:0!important;margin:2px 4px 2px 0!important} .st-btns .btn.big{font-size:22px!important} #modeDesc,.st-btns .mdesc,.st-btns>div{font-size:12px!important;line-height:1.05!important;margin:0!important} .st-best{font-size:14px!important;margin-top:4px!important;padding:1px 8px!important} }
+@media (max-height:660px){ .start{overflow-y:auto;align-items:flex-start!important;padding-top:6px;padding-bottom:10px} .st-logo{font-size:52px!important;line-height:.82!important;animation:none!important} .st-logo .scribble{display:none} .st-sub{font-size:15px!important;margin:2px 0 4px 4px!important} .st-btns{gap:2px!important} .st-btns .btn{font-size:16px!important;padding:1px 14px!important;min-width:0!important;margin:2px 4px 2px 0!important} .st-btns .btn.big{font-size:22px!important} #modeDesc,.st-btns .mdesc,.st-btns>div{font-size:12px!important;line-height:1.05!important;margin:0!important} .st-best{font-size:14px!important;margin-top:4px!important;padding:1px 8px!important} }
 #joyBase{position:fixed;width:130px;height:130px;margin:-65px 0 0 -65px;border:4px solid #111;border-radius:50%;background:rgba(255,255,255,.35);z-index:8;display:none;pointer-events:none}
 #joyKnob{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px;border-radius:50%;background:#111}
 .tb{position:fixed;z-index:9;font:24px 'Permanent Marker';color:#111;background:#fff;border:4px solid #111;border-radius:50%;width:84px;height:84px;box-shadow:4px 4px 0 #111;touch-action:none;user-select:none;-webkit-user-select:none}
