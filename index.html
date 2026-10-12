@@ -682,7 +682,7 @@ function flatT(w,d,mat,x,z,y=.02,uw=4,ud=4){ const p=mk(planeT(w,d,uw,ud),mat,x,
 function lineBox(w,d,mat,x,z,y=.045){ return mk(box(w,.02,d),mat,x,y,z,scene,false); }
 function textSign(txt,bg='#fffaf0',fg='#111',W=256,H=96,font=56){ if(PHONE){ W=Math.round(W/2); H=Math.round(H/2); font=font/2; } const t=canvasTex('sign:'+txt+bg+fg+W+'x'+H+font,(g)=>{ g.fillStyle=bg; g.fillRect(0,0,W,H); g.fillStyle=fg; let fz=font; g.font=fz+'px "Permanent Marker", sans-serif'; while(fz>8&&Math.max(g.measureText(txt).width,txt.length*fz*.8)>W*.9){ fz-=2; g.font=fz+'px "Permanent Marker", sans-serif'; } g.textAlign='center'; g.textBaseline='middle'; g.fillText(txt,W/2,H/2+3); },W,H);
   t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping; if(document.fonts) document.fonts.load(font+'px "Permanent Marker"').then(()=>{ const g=t.image.getContext('2d'); g.fillStyle=bg; g.fillRect(0,0,W,H); g.fillStyle=fg; g.font=font+'px "Permanent Marker", sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(txt,W/2,H/2+3); t.needsUpdate=true; }).catch(()=>{});
-  return new THREE.MeshLambertMaterial({map:t}); }
+  return new THREE.MeshLambertMaterial({map:t,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-8}); }   /* sign faces always win over the board or wall right behind them - from far away they used to flicker into each other */
 function grp(x,z,rot=0,y=0){ const g=new THREE.Group(); g.position.set(x,y,z); g.rotation.y=rot; scene.add(g); return g; }
 function grpCollide(g,top,pad=0){ g.updateMatrixWorld(true); const b=new THREE.Box3().setFromObject(g); colliders.push({x0:b.min.x-pad,x1:b.max.x+pad,z0:b.min.z-pad,z1:b.max.z+pad,top:top??b.max.y}); g.traverse(o=>{ if(o.isMesh) solids.push(o); }); }
 
@@ -864,7 +864,7 @@ function towerRoute(b,p){ if(Math.abs(p.y-Math.round(p.y/FH)*FH)<.15||b.lastF===
   return null; }
 function stairWay(b,t,p,f,dir){ const key=t.id+':'+f+':'+dir; if(b.swk!==key){ b.swk=key; b.swi=0; }
   const W=dir>0?t.up:t.down; let w=W[b.swi]; if(Math.hypot(w[0]-p.x,w[1]-p.z)<.45&&b.swi<W.length-1){ b.swi++; w=W[b.swi]; } return {x:w[0],z:w[1]}; }
-function billboard(x,y,z,rot,txt,bg,fg){ const g=grp(x,z,rot,y); for(const sx of [-2,2]) mk(box(.15,2.4,.15),MC.metal,sx,1.2,0,g); const p=mk(box(6.4,2.6,.15),MC.trim,0,3.4,0,g); const f=mk(new THREE.PlaneGeometry(6,2.2),textSign(txt,bg,fg,512,180,96),0,3.4,.09,g,false); for(let i=-2;i<=2;i+=2) mk(cyl(.05,.05,.5,6),MC.metal,i,4.85,.3,g,false); }
+function billboard(x,y,z,rot,txt,bg,fg){ const g=grp(x,z,rot,y); for(const sx of [-2,2]) mk(box(.15,2.4,.15),MC.metal,sx,1.2,0,g); const p=mk(box(6.4,2.6,.15),MC.trim,0,3.4,0,g); const f=mk(new THREE.PlaneGeometry(6,2.2),textSign(txt,bg,fg,512,180,96),0,3.4,.13,g,false); for(let i=-2;i<=2;i+=2) mk(cyl(.05,.05,.5,6),MC.metal,i,4.85,.3,g,false); }
 function roadSeg(x0,x1,z0,z1,alongX){ const w=x1-x0, d=z1-z0, cx=(x0+x1)/2, cz=(z0+z1)/2; flatT(w,d,MC.road,cx,cz,.02,6,6);
   const len=alongX?w:d; if(len<2) return;
   for(const o of [-.12,.12]) alongX?lineBox(len,.1,MC.yel,cx,cz+o):lineBox(.1,len,MC.yel,cx+o,cz);                                     /* double yellow line */
