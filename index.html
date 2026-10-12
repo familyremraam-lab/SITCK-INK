@@ -58,7 +58,9 @@ canvas#c{display:block;width:100%;height:100%}
 .st-best{margin-top:16px;font-size:24px;background:#fff;border:3px solid #111;border-radius:10px 6px 12px 8px;padding:4px 14px;transform:rotate(1.5deg)}.st-best:empty{display:none}
 .st-note{position:fixed;right:5vw;bottom:9vh;font-size:26px;text-align:right;transform:rotate(-4deg);background:#fffdf2;border:3px dashed #111;padding:8px 16px;border-radius:12px}
 .st-card{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-1deg);background:#fffdf6;border:4px solid #111;border-radius:14px 8px 16px 10px;box-shadow:8px 8px 0 #111;padding:20px 34px;text-align:center;z-index:25;max-width:92vw}
-.st-card.hide{display:none}.card-t{font:48px 'Permanent Marker';margin-bottom:6px}.tip{font-size:21px;max-width:440px;margin:6px auto}
+.st-card.hide{display:none}
+@media (max-height:660px){ .st-card{padding:8px 18px!important} .st-card .btn{font-size:17px!important;padding:1px 14px!important;margin:3px 4px!important;min-width:0!important;display:inline-block} .st-card .logo{font-size:30px!important;line-height:1!important} }
+.st-card{max-height:92vh;overflow-y:auto;overscroll-behavior:contain}.ov .panel{max-height:94vh;overflow-y:auto;overscroll-behavior:contain}   /* settings, how-to-play and every pop-up: never taller than the screen - scroll inside instead of being cut off */.card-t{font:48px 'Permanent Marker';margin-bottom:6px}.tip{font-size:21px;max-width:440px;margin:6px auto}
 .srow{display:flex;align-items:center;gap:12px;font-size:26px;margin:12px 0;justify-content:space-between}.srow input{width:220px;accent-color:#e11d2a}.srow span{width:52px;text-align:right}
 @media (max-width:760px){ .start{padding:0 5vw;background:rgba(243,239,228,.85)} .st-note{display:none} }#touch{display:none}body.touch.ingame #touch{display:block}
 body.touch,body.touch canvas{touch-action:none}
